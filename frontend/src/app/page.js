@@ -1,37 +1,75 @@
 'use client';
 
-import {useBlockNumber, useReadContract} from "wagmi";
-import { mainnet } from "viem/chains";
-import { abi } from './abi';
+import { useState } from 'react';
+import { useBlockNumber, useReadContract, useWriteContract } from "wagmi";
+import { sepolia } from "viem/chains"; // 🔹 Utilisation de Sepolia
+import { abi } from './abi'; // 🔹 Assure-toi d'avoir ton ABI ici
 import { ConnectButton } from "@rainbow-me/rainbowkit";
-import { useAccount } from 'wagmi'
+import { useAccount } from 'wagmi';
+import contractInfo from './contractInfo.json'; // 🔹 Importer l’adresse sauvegardée
+
 export default function Home() {
-  const { data: blockNumber } = useBlockNumber({
-    chainId: mainnet.id,
-    watch: true,
-  });
+    // Adresse de ton contrat sur Sepolia (À modifier avec la vraie adresse après déploiement)
+    const contractAddress = contractInfo.contractAddress; // 🛑 Remplace par la vraie adresse
 
-  const { data: balance } = useReadContract({
-    abi,
-    address: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
-    functionName: 'balanceOf',
-    args: ['0x6B175474E89094C44Da98b954EedeAC495271d0F'],
-    chainId: 1,
-  });
+    const { data: blockNumber } = useBlockNumber({
+        chainId: sepolia.id,
+        watch: true,
+    });
 
-  const { address, isConnected } = useAccount();
+    // 🔹 Lire la valeur stockée dans le contrat
+    const { data: storedValue } = useReadContract({
+        abi,
+        address: contractAddress,
+        functionName: 'retrieve',
+        chainId: sepolia.id,
+    });
 
-  return (
-      <div>
-        <p>BlockNumber on the mainnet: {blockNumber && blockNumber.toString()}</p>
-        <p>BalanceOf on the mainnet: {balance && balance.toString()}</p>
+    const { address, isConnected } = useAccount();
 
-        {isConnected ? (
-            <p>Connected with {address}</p>
-        ) : (
-            <p>Please connect your Wallet.</p>
-        )}
-        <ConnectButton />
-      </div>
-  );
+    // 🔹 Gérer l'entrée utilisateur pour modifier la valeur
+    const [newValue, setNewValue] = useState("");
+
+    // 🔹 Modifier la valeur stockée dans le contrat
+    const { writeContract } = useWriteContract();
+
+    const handleStoreValue = async () => {
+        if (!newValue) return;
+        try {
+            await writeContract({
+                abi,
+                address: contractAddress,
+                functionName: "store",
+                args: [parseInt(newValue)], // Convertir en int
+                chainId: sepolia.id,
+            });
+            console.log("✅ Transaction envoyée !");
+        } catch (error) {
+            console.error("Erreur lors de l'envoi :", error);
+        }
+    };
+
+    return (
+        <div>
+            <p>BlockNumber on Sepolia: {blockNumber && blockNumber.toString()}</p>
+            <p>Stored Value: {storedValue ? storedValue.toString() : "Loading..."}</p>
+
+            {isConnected ? (
+                <>
+                    <p>Connected with {address}</p>
+                    <input
+                        type="number"
+                        placeholder="Enter a value"
+                        value={newValue}
+                        onChange={(e) => setNewValue(e.target.value)}
+                    />
+                    <button onClick={handleStoreValue}>Store Value</button>
+                </>
+            ) : (
+                <p>Please connect your Wallet.</p>
+            )}
+
+            <ConnectButton />
+        </div>
+    );
 }
