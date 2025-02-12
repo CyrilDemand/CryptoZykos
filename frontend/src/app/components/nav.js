@@ -13,7 +13,7 @@ const Nav = () => {
             <div className="text-xl font-bold">🎵</div>
             <ul className="flex items-center space-x-4">
                 <li><Link href={`/`} className="px-4 py-2 bg-gray-800 rounded-lg hover:bg-gray-600 transition">Accueil</Link></li>
-                <li><a href="#" className="px-4 py-2 bg-gray-800 rounded-lg hover:bg-gray-600 transition">Bibliothèque</a></li>
+                <li><Link href={`/bibliotheque/`} className="px-4 py-2 bg-gray-800 rounded-lg hover:bg-gray-600 transition">Bibliothèque</Link></li>
                 {address && <li><Link href={`/upload/`} className="px-4 py-2 bg-gray-800 rounded-lg hover:bg-gray-600 transition">Upload</Link></li>}
                 <li>
                     <ConnectButton.Custom>
