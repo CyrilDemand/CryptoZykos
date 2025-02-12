@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import { useBlockNumber, useReadContract, useWriteContract } from "wagmi";
 import { sepolia } from "viem/chains";
 import { abi } from './abi';
-import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useAccount } from 'wagmi';
 import contractInfo from './contractInfo.json';
 
