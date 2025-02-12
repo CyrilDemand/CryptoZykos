@@ -44,48 +44,72 @@ export default function Home() {
     };
 
     return (
-        <div className="min-h-screen flex justify-center items-center bg-gradient-to-br from-gray-100 to-gray-200 p-6">
-            <div className="bg-white shadow-lg rounded-lg p-8 w-full max-w-md text-center space-y-6">
-                <h1 className="text-3xl font-extrabold text-indigo-700">Blockchain Info</h1>
-
-                <div>
-                    <p className="text-gray-600 font-medium">Block Number on Sepolia:</p>
-                    <p className="font-mono text-lg text-gray-800">{blockNumber && blockNumber.toString()}</p>
+        <>
+            {/* Navbar */}
+            <nav className="fixed top-0 left-0 w-full bg-black text-white px-6 py-3 flex justify-between items-center border-b-2 border-purple-500 shadow-md z-50">
+                {/* Logo */}
+                <div className="text-xl font-bold">🎵</div>
+    
+                {/* Menu */}
+                <ul className="flex space-x-4">
+                    <li><a href="#" className="px-4 py-2 bg-gray-800 rounded-lg hover:bg-gray-600 transition">Accueil</a></li>
+                    <li><a href="#" className="px-4 py-2 bg-gray-800 rounded-lg hover:bg-gray-600 transition">Bibliothèque</a></li>
+                    <li><span><ConnectButton /></span></li>
+                </ul>
+            </nav>    
+            <div className="min-h-screen flex flex-col justify-center items-center bg-gradient-to-br from-gray-100 to-gray-200 px-12">
+                {/* Bannière */}
+                <div className="relative w-screen min-w-[600px] h-32 bg-gradient-to-r from-pink-500 to-yellow-400 flex justify-center items-center text-white font-extrabold text-4xl shadow-md">
+                    CryptoZykos
+                    {/* Icônes musicales ajustées et inversées */}
+                    <div className="absolute left-1/4 top-[-0.5px] text-yellow-300 text-5xl mix-blend-overlay ">🎵</div>
+                    <div className="absolute right-1/4 top-[-0.5px] text-yellow-300 text-5xl mix-blend-overlay">🎵</div>
+                    <div className="absolute left-[30%] bottom-1 text-pink-600 text-5xl mix-blend-overlay">🎵</div>
+                    <div className="absolute right-[30%] bottom-1 text-pink-600 text-5xl mix-blend-overlay">🎵</div>
                 </div>
-
-                <div>
-                    <p className="text-gray-600 font-medium">Stored Value:</p>
-                    <p className="font-mono text-lg text-gray-800">{storedValue ? storedValue.toString() : "Loading..."}</p>
-                </div>
-
-                {isConnected ? (
-                    <>
-                        <p className="text-green-600 font-semibold">Connected with {address}</p>
-                        <div className="flex flex-col items-center space-y-4 mt-4">
-                        <input
-                            type="number"
-                            placeholder="Enter a value"
-                            value={newValue}
-                            onChange={(e) => setNewValue(e.target.value)}
-                            className="w-full px-4 py-2 border border-gray-400 rounded-md text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-indigo-400 focus:outline-none"
-                        />
-
-                            <button 
-                                onClick={handleStoreValue} 
-                                className="bg-indigo-600 text-white px-6 py-2 rounded-lg shadow-md hover:bg-indigo-700 transition-all duration-300"
-                            >
-                                Store Value
-                            </button>
-                        </div>
-                    </>
-                ) : (
-                    <p className="text-red-600 font-semibold">Please connect your Wallet.</p>
-                )}
-
-                <div className="flex justify-center">
-                    <ConnectButton className="connect-button" />
+    
+                {/* Contenu principal */}
+                <div className="w-full text-center space-y-6 mt-12">
+                    <h1 className="text-4xl font-extrabold text-indigo-700">Blockchain Info</h1>
+    
+                    <div>
+                        <p className="text-gray-600 font-medium">Block Number on Sepolia:</p>
+                        <p className="font-mono text-xl text-gray-800">{blockNumber && blockNumber.toString()}</p>
+                    </div>
+    
+                    <div>
+                        <p className="text-gray-600 font-medium">Stored Value:</p>
+                        <p className="font-mono text-xl text-gray-800">{storedValue ? storedValue.toString() : "Loading..."}</p>
+                    </div>
+    
+                    {isConnected ? (
+                        <>
+                            <p className="text-green-600 font-semibold text-lg">Connected with</p>
+                            <p className="text-green-500 font-mono text-lg">{address}</p>
+    
+                            {/* Formulaire d'entrée */}
+                            <div className="flex flex-col items-center space-y-4 mt-6">
+                                <input
+                                    type="number"
+                                    placeholder="Enter a value"
+                                    value={newValue}
+                                    onChange={(e) => setNewValue(e.target.value)}
+                                    className="w-96 px-4 py-2 border border-gray-400 rounded-md text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-indigo-400 focus:outline-none"
+                                />
+                                <button 
+                                    onClick={handleStoreValue} 
+                                    className="bg-indigo-600 text-white px-6 py-3 rounded-lg shadow-md hover:bg-indigo-700 transition-all duration-300"
+                                >
+                                    Store Value
+                                </button>
+                            </div>
+                        </>
+                    ) : (
+                        <p className="text-red-600 font-semibold text-lg">Please connect your Wallet.</p>
+                    )}
                 </div>
             </div>
-        </div>
+        </>
     );
+    
 }
