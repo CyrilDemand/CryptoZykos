@@ -9,7 +9,6 @@ import { useAccount } from "wagmi";
 import contractInfo from "./contractInfo.json";
 
 export default function Home() {
-    // Adresse de ton contrat sur Sepolia (À modifier avec la vraie adresse après déploiement)
     const contractAddress = contractInfo.contractAddress; // 🛑 Remplace par la vraie adresse
 
     const { data: blockNumber } = useBlockNumber({
@@ -33,21 +32,6 @@ export default function Home() {
     // 🔹 Modifier la valeur stockée dans le contrat
     const { writeContract } = useWriteContract();
 
-    const handleStoreValue = async () => {
-        if (!newValue) return;
-        try {
-            await writeContract({
-                abi,
-                address: contractAddress,
-                functionName: "store",
-                args: [parseInt(newValue)], // Convertir en int
-                chainId: sepolia.id,
-            });
-            console.log("✅ Transaction envoyée !");
-        } catch (error) {
-            console.error("Erreur lors de l'envoi :", error);
-        }
-    };
 
     const [file, setFile] = useState(null);
     const [ipfsUrl, setIpfsUrl] = useState("");
@@ -57,16 +41,6 @@ export default function Home() {
         const url = await uploadToIPFS(file);
         setIpfsUrl(url);
     };
-
-    const hasAddedMusic = useRef(false);
-
-    useEffect(() => {
-        if (isConnected && numberOfMusic !== undefined && numberOfMusic === BigInt(0) && !hasAddedMusic.current) {
-            hasAddedMusic.current = true; // Bloque l'exécution après le premier appel
-            console.log("🚀 Ajout automatique de musiques...");
-            addRandomMusic().then(r => console.log("ADDED"));
-        }
-    }, [isConnected, numberOfMusic]);
 
     async function addRandomMusic() {
         try {
