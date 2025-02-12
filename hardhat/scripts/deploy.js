@@ -16,6 +16,12 @@ async function main() {
         JSON.stringify({ contractAddress }, null, 2) // Écrit dans le JSON
     );
 
+    fs.writeFileSync(
+        "../../../frontend/src/app/contractInfo.json",
+        JSON.stringify({ contractAddress }, null, 2) // Écrit dans le JSON
+    );
+
+
     console.log("✅ Adresse du contrat mise à jour dans contractInfo.json");
     console.log("CHANGEZ AUSSI DANS L AUTRE JSON DU FRONT END")
 }
