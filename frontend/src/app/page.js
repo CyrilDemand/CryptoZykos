@@ -49,12 +49,43 @@ export default function Home() {
             <div className="relative w-screen min-w-[600px] h-48 bg-gradient-to-r from-pink-500 to-yellow-400 flex justify-center items-center text-white font-extrabold text-4xl shadow-md mt-[52px]">
                 CryptoZykos
                 {/* Icônes musicales ajustées */}
-                <div className="absolute left-1/4 top-[10px] text-yellow-300 text-5xl mix-blend-overlay ">🎵</div>
-                <div className="absolute right-1/4 top-[10px] text-yellow-300 text-5xl mix-blend-overlay">🎵</div>
+                <div className="absolute left-1/4 top-[15px] text-yellow-300 text-5xl mix-blend-overlay ">🎵</div>
+                <div className="absolute right-1/4 top-[15px] text-yellow-300 text-5xl mix-blend-overlay">🎵</div>
                 <div className="absolute left-[30%] bottom-1 text-pink-600 text-5xl mix-blend-overlay">🎵</div>
                 <div className="absolute right-[30%] bottom-1 text-pink-600 text-5xl mix-blend-overlay">🎵</div>
             </div>
-    
+
+            {/* Section Musiques */}
+            <div className="bg-black text-white min-h-screen p-8">
+                <h2 className="text-2xl font-bold mb-4">Musiques</h2>
+                <div className="grid gap-4">
+                    <div className="bg-gray-800 p-4 rounded-lg flex items-center">
+                        <div className="w-16 h-16 bg-gray-600 rounded-lg"></div>
+                        <div className="ml-4">
+                            <h3 className="text-lg font-semibold">Titre</h3>
+                            <p className="text-sm text-gray-400">Description à compléter.</p>
+                        </div>
+                        <div className="ml-auto text-sm bg-gray-700 px-3 py-1 rounded">0.001 ETH</div>
+                    </div>
+                    <div className="bg-gray-800 p-4 rounded-lg flex items-center">
+                        <div className="w-16 h-16 bg-gray-600 rounded-lg"></div>
+                        <div className="ml-4">
+                            <h3 className="text-lg font-semibold">Titre</h3>
+                            <p className="text-sm text-gray-400">Description à compléter.</p>
+                        </div>
+                        <div className="ml-auto text-sm bg-gray-700 px-3 py-1 rounded">0.025 ETH</div>
+                    </div>
+                    <div className="bg-gray-800 p-4 rounded-lg flex items-center">
+                        <div className="w-16 h-16 bg-gray-600 rounded-lg"></div>
+                        <div className="ml-4">
+                            <h3 className="text-lg font-semibold">Titre</h3>
+                            <p className="text-sm text-gray-400">Description à compléter.</p>
+                        </div>
+                        <div className="ml-auto text-sm bg-gray-700 px-3 py-1 rounded">2 ETH</div>
+                    </div>
+                </div>
+            </div>
+            
             {/* Contenu principal */}
             <div className="min-h-screen flex flex-col justify-center items-center bg-gradient-to-br from-gray-100 to-gray-200 px-12">
                 <div className="w-full text-center space-y-6 mt-12">
