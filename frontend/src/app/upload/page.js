@@ -1,9 +1,9 @@
-// frontend/src/app/upload.js
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useAccount } from 'wagmi';
-import { useRouter } from 'next/navigation'
+import { useRouter } from 'next/navigation';
+import ColorThief from 'colorthief';
 
 export default function Upload() {
     const { address } = useAccount(); 
@@ -12,22 +12,29 @@ export default function Upload() {
     const [music, setMusic] = useState(null);
     const [coverArt, setCoverArt] = useState(null);
     const [price, setPrice] = useState('');
+    const [priceUSD, setPriceUSD] = useState(null); // Correction ici, l'état n'était pas initialisé
     const [coverArtPreview, setCoverArtPreview] = useState(null);
+    const [backgroundColor, setBackgroundColor] = useState('rgb(0,0,0)'); // Couleur du fond extraite
+    const [gradientBackground, setGradientBackground] = useState('linear-gradient(to right, black, gray)');
 
-    if (!address) {
-        router.push('/');
-        return null; 
-    }
+    const imgRef = useRef(null);
+
+    // ✅ Utilisation de useEffect pour rediriger après le rendu initial
+    useEffect(() => {
+        if (!address) {
+            router.push('/');
+        }
+    }, [address, router]); // Dépendance sur `address`, ne redirige que si elle est absente
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        // Handle form submission logic here
         console.log({
             title,
             music,
             price,
+            priceUSD,
             coverArt,
-            walletId: address, // Include the wallet ID
+            walletId: address,
         });
     };
 
@@ -37,67 +44,126 @@ export default function Upload() {
         if (file) {
             const reader = new FileReader();
             reader.onloadend = () => {
-                setCoverArtPreview(reader.result); // Mettre à jour l'aperçu de l'image
+                setCoverArtPreview(reader.result);
             };
             reader.readAsDataURL(file);
         }
     };
 
+    // ✅ Récupération du taux de change ETH -> USD
+    useEffect(() => {
+        const fetchEthPrice = async () => {
+            try {
+                const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd');
+                const data = await response.json();
+                return data.ethereum.usd;
+            } catch (error) {
+                console.error("Erreur de récupération du prix ETH:", error);
+                return null;
+            }
+        };
+
+        if (price) {
+            fetchEthPrice().then((ethToUsdRate) => {
+                if (ethToUsdRate) {
+                    setPriceUSD((parseFloat(price) * ethToUsdRate).toFixed(2)); // Convertir ETH en USD
+                }
+            });
+        }
+    }, [price]);
+
+    useEffect(() => {
+        if (coverArtPreview && imgRef.current) {
+            const colorThief = new ColorThief();
+            const img = imgRef.current;
+
+            img.onload = () => {
+                try {
+                    const dominantColor = colorThief.getColor(img);
+                    const colorString = `rgb(${dominantColor[0]}, ${dominantColor[1]}, ${dominantColor[2]})`;
+                    const gradient = `linear-gradient(to right, ${colorString}, black)`;
+                    
+                    setBackgroundColor(colorString);
+                    setGradientBackground(gradient);
+                } catch (error) {
+                    console.error("Erreur d'extraction des couleurs:", error);
+                }
+            };
+        }
+    }, [coverArtPreview]);
+
     return (
-        <div className="min-h-screen flex flex-col justify-center items-center bg-gradient-to-br from-gray-100 to-gray-200 px-12">
-            <h1 className="text-4xl font-extrabold text-indigo-700 mb-6">Upload Music</h1>
-            <form onSubmit={handleSubmit} className="w-full max-w-md space-y-4">
+        <div className="h-screen w-full flex flex-col justify-center items-center text-white px-6 py-10"
+        style={{ background: gradientBackground }}>
+            <form onSubmit={handleSubmit} className="w-full max-w-md bg-gray-900 p-6 rounded-lg shadow-lg space-y-4">
+            {/* Titre page */}
+            <div className="flex justify-center">
+                <h1 className="text-4xl font-extrabold flex justify-center mb-6"
+                    style={{ color: backgroundColor }}>
+                    Upload Music
+                </h1>
+            </div>   
+                {/* Image Cover */}
+                 <div className="flex justify-center">
+                    <label className="cursor-pointer w-24 h-24 bg-gray-600 rounded-lg flex justify-center items-center overflow-hidden">
+                        {coverArtPreview ? (
+                            <img
+                                ref={imgRef}
+                                src={coverArtPreview}
+                                alt="Cover"
+                                className="w-full h-full object-cover"
+                                crossOrigin="anonymous"
+                            />
+                        ) : (
+                            <span className="text-gray-300">+</span>
+                        )}
+                        <input type="file" accept="image/*" onChange={handleCoverArtChange} className="hidden" />
+                    </label>
+                </div>
+
+                {/* Titre musique */}
                 <div>
-                    <label className="block text-gray-700">Title:</label>
+                    <label className="block font-semibold mb-1">Titre:</label>
                     <input
                         type="text"
                         value={title}
                         onChange={(e) => setTitle(e.target.value)}
-                        className="w-full px-4 py-2 border border-gray-400 rounded-md text-black"
+                        className="w-full px-4 py-2 border border-gray-600 rounded-md bg-gray-800 text-white focus:ring-2 focus:ring-purple-500"
+                        placeholder="Entrez le titre de la musique"
                         required
                     />
                 </div>
+
+                {/* Champs de formulaire */}
                 <div>
-                    <label className="block text-gray-700">Audio file (MP3):</label>
+                    <label className="block text-gray-300 font-semibold mb-1">Fichier audio (MP3):</label>
                     <input
                         type="file"
                         onChange={(e) => setMusic(e.target.files[0])}
-                        className="w-full border border-gray-400 rounded-md text-black"
-                        accept="audio/mpeg" // Accept only MP3 files
+                        className="w-full border border-gray-600 rounded-md bg-gray-800 text-white"
+                        accept="audio/mpeg"
                         required
                     />
                 </div>
+                {/* Prix en ETH avec conversion USD */}
                 <div>
-                    <label className="block text-gray-700">Cover Art:</label>
-                    <input
-                        type="file"
-                        onChange={handleCoverArtChange}
-                        className="w-full border border-gray-400 rounded-md text-black"
-                        accept="image/*"
-                        required
-                    />
-                    {coverArtPreview && ( // Afficher l'aperçu si disponible
-                        <img
-                            src={coverArtPreview}
-                            alt="Cover Art Preview"
-                            className="mt-2 max-w-xs max-h-40" // Taille maximale en CSS
+                    <label className="block text-gray-300 font-semibold mb-1">Prix (en ETH):</label>
+                    <div className="flex items-center space-x-3">
+                        <input
+                            type="number"
+                            value={price}
+                            onChange={(e) => setPrice(e.target.value)}
+                            className="w-full px-4 py-2 border border-gray-600 rounded-md bg-gray-800 text-white focus:ring-2 focus:ring-purple-500"
+                            placeholder="Entrer le prix en ETH"
+                            required
                         />
-                    )}
-                </div>
-                <div>
-                    <label className="block text-gray-700">Price:</label>
-                    <input
-                        type="text" // Changer le type en text
-                        value={price}
-                        onChange={(e) => setPrice(e.target.value)}
-                        className="w-full px-4 py-2 border border-gray-400 rounded-md text-black"
-                        placeholder="Enter price in USD" // Placeholder pour indiquer le format
-                        required
-                    />
+                        <span className="text-gray-300 font-semibold">≈ {priceUSD ? `$${priceUSD} USD` : '...'}</span>
+                    </div>
                 </div>
                 <button
                     type="submit"
-                    className="w-full px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-500 transition"
+                    className="w-full px-4 py-2 rounded-md transition"
+                    style={{ background: backgroundColor, color: "#fff" }}
                 >
                     Submit
                 </button>
