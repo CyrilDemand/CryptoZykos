@@ -2,12 +2,12 @@ const fs = require("fs");
 const hre = require("hardhat");
 
 async function main() {
-    const Storage = await hre.ethers.getContractFactory("Storage");
-    const storage = await Storage.deploy();
+    const CopyrightNFT = await hre.ethers.getContractFactory("CopyrightNFT");
+    const contract = await CopyrightNFT.deploy();
 
-    await storage.waitForDeployment();
+    await contract.waitForDeployment();
 
-    const contractAddress = await storage.getAddress();
+    const contractAddress = await contract.getAddress();
     console.log(`✅ Contrat déployé à l'adresse: ${contractAddress}`);
 
     // 🔹 Sauvegarde l’adresse dans un fichier JSON
@@ -17,7 +17,7 @@ async function main() {
     );
 
     fs.writeFileSync(
-        "../../../frontend/src/app/contractInfo.json",
+        "../frontend/src/app/contractInfo.json",
         JSON.stringify({ contractAddress }, null, 2) // Écrit dans le JSON
     );
 
@@ -26,7 +26,9 @@ async function main() {
     console.log("CHANGEZ AUSSI DANS L AUTRE JSON DU FRONT END")
 }
 
-main().catch((error) => {
-    console.error(error);
-    process.exitCode = 1;
-});
+main()
+    .then(() => process.exit(0))
+    .catch((error) => {
+        console.error(error);
+        process.exit(1);
+    });
