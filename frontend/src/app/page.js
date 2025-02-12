@@ -8,6 +8,7 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useAccount } from 'wagmi';
 import contractInfo from './contractInfo.json';
 
+
 export default function Home() {
     const contractAddress = contractInfo.contractAddress;
 
@@ -45,75 +46,6 @@ export default function Home() {
 
     return (
         <>
-            {/* Navbar */}
-            <nav className="fixed top-0 left-0 w-full bg-black text-white px-6 py-3 flex justify-between items-center border-b-2 border-purple-500 shadow-md z-50">
-                {/* Logo */}
-                <div className="text-xl font-bold">🎵</div>
-    
-                {/* Menu */}
-                <ul className="flex items-center space-x-4">
-                    <li><a href="#" className="px-4 py-2 bg-gray-800 rounded-lg hover:bg-gray-600 transition">Accueil</a></li>
-                    <li><a href="#" className="px-4 py-2 bg-gray-800 rounded-lg hover:bg-gray-600 transition">Bibliothèque</a></li>
-                    <li>
-                        <ConnectButton.Custom>
-                            {({
-                                account,
-                                chain,
-                                openAccountModal,
-                                openChainModal,
-                                openConnectModal,
-                                mounted
-                            }) => {
-                                return (
-                                    <div
-                                        {...(!mounted && {
-                                            "aria-hidden": true,
-                                            style: {
-                                                opacity: 0,
-                                                pointerEvents: "none",
-                                                userSelect: "none",
-                                            },
-                                        })}
-                                        className="flex space-x-2"
-                                    >
-                                        {account && chain ? (
-                                            <>
-                                                {/* Réseau (Sepolia, Mainnet, etc.) */}
-                                                <button
-                                                    onClick={openChainModal}
-                                                    className="px-4 py-2 bg-white text-black rounded-lg shadow-md hover:bg-gray-200 transition-all duration-300 flex items-center"
-                                                >
-                                                    🟢 {chain.name}
-                                                </button>
-
-                                                {/* Solde + Adresse */}
-                                                <button
-                                                    onClick={openAccountModal}
-                                                    className="px-4 py-2 bg-white text-black rounded-lg shadow-md hover:bg-gray-200 transition-all duration-300 flex items-center space-x-2"
-                                                >
-                                                    <span>{account.displayBalance ? account.displayBalance : "0 ETH"}</span>
-                                                    <span className="text-red-500">🔴</span>
-                                                    <span>{account.displayName}</span>
-                                                </button>
-                                            </>
-                                        ) : (
-                                            <button
-                                                onClick={openConnectModal}
-                                                className="px-4 py-2 bg-gray-800 text-white rounded-lg shadow-md hover:bg-gray-600 transition-all duration-300"
-                                            >
-                                                Connexion
-                                            </button>
-                                        )}
-                                    </div>
-                                );
-                            }}
-                        </ConnectButton.Custom>
-                    </li>
-
-
-                </ul>
-            </nav>
-    
             {/* Bannière (directement sous la navbar) */}
             <div className="relative w-screen min-w-[600px] h-48 bg-gradient-to-r from-pink-500 to-yellow-400 flex justify-center items-center text-white font-extrabold text-4xl shadow-md mt-[52px]">
                 CryptoZykos

@@ -6,6 +6,7 @@ import { config } from './config';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import CustomRainbowKitProvider from "./CustomRainbowKitProvider";
 const queryClient = new QueryClient();
+import Nav from "./components/nav"
 
 export default function RootLayout({ children }) {
     return (
@@ -14,7 +15,10 @@ export default function RootLayout({ children }) {
         <WagmiProvider config={config}>
             <QueryClientProvider client={queryClient}>
                 <CustomRainbowKitProvider>
+
+                    <Nav />
                     {children}
+                    
                 </CustomRainbowKitProvider>
             </QueryClientProvider>
         </WagmiProvider>
