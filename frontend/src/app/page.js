@@ -14,7 +14,6 @@ export default function Home() {
     const { data: numberOfMusic } = useReadContract({
         abi,
         address: contractAddress,
-        functionName: 'retrieve',
         functionName: 'getMusicCount',
         chainId: sepolia.id,
     });
@@ -50,8 +49,6 @@ export default function Home() {
             await writeContract({
                 abi,
                 address: contractAddress,
-                functionName: "store",
-                args: [parseInt(newValue)],
                 functionName: "addMusic",
                 args: [
                     "123",
