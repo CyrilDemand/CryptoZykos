@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { useEffect, useState } from 'react';
 import { useBlockNumber, useReadContract, useWriteContract } from "wagmi";
@@ -11,6 +11,14 @@ import contractInfo from './contractInfo.json';
 export default function Home() {
     const contractAddress = contractInfo.contractAddress;
 
+    const { data: numberOfMusic } = useReadContract({
+        abi,
+        address: contractAddress,
+        functionName: 'retrieve',
+        functionName: 'getMusicCount',
+        chainId: sepolia.id,
+    });
+
     const { data: blockNumber } = useBlockNumber({
         chainId: sepolia.id,
         watch: true,
@@ -19,7 +27,7 @@ export default function Home() {
     const { data: storedValue } = useReadContract({
         abi,
         address: contractAddress,
-        functionName: 'retrieve',
+        functionName: 'getMusicCount',
         chainId: sepolia.id,
     });
 
@@ -27,21 +35,39 @@ export default function Home() {
     const [newValue, setNewValue] = useState("");
     const { writeContract } = useWriteContract();
 
-    const handleStoreValue = async () => {
-        if (!newValue) return;
+
+    const [file, setFile] = useState(null);
+    const [ipfsUrl, setIpfsUrl] = useState("");
+
+    const handleUpload = async () => {
+        if (!file) return;
+        const url = await uploadToIPFS(file);
+        setIpfsUrl(url);
+    };
+
+    async function addRandomMusic() {
         try {
             await writeContract({
                 abi,
                 address: contractAddress,
                 functionName: "store",
                 args: [parseInt(newValue)],
+                functionName: "addMusic",
+                args: [
+                    "123",
+                    "lalala",
+                    1,
+                ],
                 chainId: sepolia.id,
             });
-            console.log("✅ Transaction envoyée !");
+
+            console.log("✅ Musique ajoutée automatiquement !");
+            await refetch(); // 🔄 Rafraîchir les données après ajout
         } catch (error) {
-            console.error("Erreur lors de l'envoi :", error);
+            console.error("❌ Erreur lors de l'ajout de la musique :", error);
         }
-    };
+    }
+
 
     return (
         <>
@@ -88,47 +114,37 @@ export default function Home() {
             
             {/* Contenu principal */}
             <div className="min-h-screen flex flex-col justify-center items-center bg-gradient-to-br from-gray-100 to-gray-200 px-12">
-                <div className="w-full text-center space-y-6 mt-12">
-                    <h1 className="text-4xl font-extrabold text-indigo-700">Blockchain Info</h1>
-    
-                    <div>
-                        <p className="text-gray-600 font-medium">Block Number on Sepolia:</p>
-                        <p className="font-mono text-xl text-gray-800">{blockNumber && blockNumber.toString()}</p>
-                    </div>
-    
-                    <div>
-                        <p className="text-gray-600 font-medium">Stored Value:</p>
-                        <p className="font-mono text-xl text-gray-800">{storedValue ? storedValue.toString() : "Loading..."}</p>
-                    </div>
-    
+                <div>
+                    <p>BlockNumber on Sepolia: {blockNumber && blockNumber.toString()}</p>
+                    <p>🎵 Nombre de musiques: {numberOfMusic !== undefined ? numberOfMusic.toString() : "Chargement..."}</p>
+                    <button onClick={addRandomMusic}>Store Value</button>
                     {isConnected ? (
                         <>
-                            <p className="text-green-600 font-semibold text-lg">Connected with</p>
-                            <p className="text-green-500 font-mono text-lg">{address}</p>
-    
-                            {/* Formulaire d'entrée */}
-                            <div className="flex flex-col items-center space-y-4 mt-6">
-                                <input
-                                    type="number"
-                                    placeholder="Enter a value"
-                                    value={newValue}
-                                    onChange={(e) => setNewValue(e.target.value)}
-                                    className="w-96 px-4 py-2 border border-gray-400 rounded-md text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-indigo-400 focus:outline-none"
-                                />
-                                <button 
-                                    onClick={handleStoreValue} 
-                                    className="px-4 py-2 bg-gray-800 rounded-lg hover:bg-gray-600 transition-all duration-300"
-                                >
-                                    Store Value
-                                </button>
-                            </div>
+                            <p>Connected with {address}</p>
+                            <input
+                                type="number"
+                                placeholder="Enter a value"
+                                value={newValue}
+                                onChange={(e) => setNewValue(e.target.value)}
+                            />
+                            
                         </>
                     ) : (
-                        <p className="text-red-600 font-semibold text-lg">Please connect your Wallet.</p>
+                        <p>Please connect your Wallet.</p>
                     )}
+                    <div>
+                        <h2>Uploader un fichier sur IPFS avec Pinata</h2>
+                        <input type="file" onChange={(e) => setFile(e.target.files[0])}/>
+                        <button onClick={handleUpload}>Uploader</button>
+
+                        {ipfsUrl && <p>✅ Fichier disponible sur <a href={ipfsUrl} target="_blank">{ipfsUrl}</a></p>}
+                    </div>
                 </div>
+
             </div>
+            
         </>
+        
     );
     
     
