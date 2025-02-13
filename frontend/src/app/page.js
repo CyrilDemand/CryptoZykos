@@ -6,6 +6,7 @@ import { sepolia } from "viem/chains";
 import { abi } from './abi';
 import { useAccount } from 'wagmi';
 import contractInfo from './contractInfo.json';
+import {uploadToIPFS} from "@/app/utils/uploadToIPFS";
 
 
 export default function Home() {
@@ -21,13 +22,6 @@ export default function Home() {
     const { data: blockNumber } = useBlockNumber({
         chainId: sepolia.id,
         watch: true,
-    });
-
-    const { data: storedValue } = useReadContract({
-        abi,
-        address: contractAddress,
-        functionName: 'getMusicCount',
-        chainId: sepolia.id,
     });
 
     const { address, isConnected } = useAccount();
