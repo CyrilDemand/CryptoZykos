@@ -26,6 +26,7 @@ export async function uploadToIPFS(file) {
         console.log("✅ Fichier stocké sur IPFS :", data);
 
         // Retourne l’URL de ton gateway personnalisé
+        console.log("return: " + `https://${process.env.NEXT_PUBLIC_GATEWAY_URL}/ipfs/${data.IpfsHash}?pinataGatewayToken=${process.env.NEXT_PUBLIC_GATEWAY_KEY}`)
         return `https://${process.env.NEXT_PUBLIC_GATEWAY_URL}/ipfs/${data.IpfsHash}?pinataGatewayToken=${process.env.NEXT_PUBLIC_GATEWAY_KEY}`;
     } catch (error) {
         console.error("❌ Erreur lors de l'upload IPFS :", error);
