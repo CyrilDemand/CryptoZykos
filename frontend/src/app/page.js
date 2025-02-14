@@ -90,7 +90,7 @@ export default function Home() {
                         <Link href={`/music/`+ music.id} >
                             <div key={index} className="bg-gray-800 p-4 rounded-lg flex items-center">
                                 
-                                {music.imageUrl != null && <img href={music.imageUrl} className="w-16 h-16 bg-gray-600 rounded-lg"></img>}
+                                {music.imageUrl != null && <img src={music.imageUrl} className="w-16 h-16 bg-gray-600 rounded-lg"></img>}
                                 
                                 <div className="ml-4">
                                     <h3 className="text-lg font-semibold">{music.name}</h3>
