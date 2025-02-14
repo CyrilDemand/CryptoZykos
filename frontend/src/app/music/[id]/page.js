@@ -8,7 +8,7 @@ import { abi } from "@/app/abi";
 import contractInfo from "@/app/contractInfo";
 
 export default function Page({ params }) {
-  
+ 
     const { address } = useAccount(); 
     const [music, setMusic] = useState(null);
     const [hasPurchased, setHasPurchased] = useState(false);
@@ -79,61 +79,66 @@ export default function Page({ params }) {
         }
     };
 
-    const togglePlay = () => {
-        if (audioRef.current) {
-            if (isPlaying) {
-                audioRef.current.pause();
-            } else {
-                audioRef.current.play().catch(err => {
-                    console.error("Erreur de lecture audio :", err);
-                    setAudioError("Impossible de lire l'audio. Vérifiez les permissions et le format.");
+    useEffect(() => {
+        const checkPurchaseStatus = async () => {
+            if (music) {
+                const { data: purchaseStatus } = await useReadContract({
+                    abi,
+                    address: contractAddress,
+                    functionName: "hasLicense",
+                    args: [music.id, address], // Assurez-vous d'importer `address` depuis `useAccount`
+                    chainId: sepolia.id,
                 });
+                setHasPurchased(purchaseStatus);
             }
-            setIsPlaying(!isPlaying);
+        };
+        checkPurchaseStatus();
+    }, [music]);
+
+    const handlePurchase = async () => {
+        if (hasPurchased) {
+            alert("Vous avez déjà acheté ce son.");
+            return;
+        }
+        try {
+            await writeContract({
+                abi,
+                address: contractAddress,
+                functionName: "purchaseLicense",
+                args: [music.id],
+                value: music.price,
+                chainId: sepolia.id,
+            });
+            alert("Achat réussi !");
+        } catch (error) {
+            console.error("Erreur lors de l'achat :", error);
+            alert("Erreur lors de l'achat. Veuillez réessayer.");
         }
     };
+
 
     if (!music) return <div>Chargement...</div>;
 
     return (
-        <div className="relative w-full h-screen bg-black flex justify-center items-center">
-            <div className="relative w-[90%] max-w-3xl bg-gradient-to-r from-black to-green-900 rounded-lg p-6 flex items-center shadow-lg">
-                
-                {/* Image */}
-                <div className="w-20 h-20 bg-gray-300 flex items-center justify-center rounded-md mr-6">
-                    {music.imageUrl ? (
-                        <img src={music.imageUrl} alt="Cover" className="w-full h-full object-cover rounded-md" />
-                    ) : (
-                        <span className="text-gray-500">🖼️</span> // Icône placeholder
-                    )}
-                </div>
+        <div className="relative w-screen h-screen bg-black text-white flex flex-col justify-center items-center">
+            {music.imageUrl && (
+                <img src={music.imageUrl} className="absolute top-0 left-0 w-full h-full object-cover opacity-30" />
+            )}
+            <h2 className="text-4xl font-bold mb-4">{music.name}</h2>
+            <p className="text-lg font-thin text-gray-400 mb-8">{music.creator}</p>
+            <audio controls className="w-full max-w-4xl">
+                <source src={music.audioUrl} type="audio/mp3" />
+                Votre navigateur ne prend pas en charge le lecteur audio.
+            </audio>
+            <div className="mt-8 text-lg bg-gray-700 px-4 py-2 rounded">{music.price} ETH</div>
 
-                {/* Informations de la musique */}
-                <div className="flex-1">
-                    <h2 className="text-2xl font-bold text-white">{music.name}</h2>
-                </div>
-
-                {/* Audio caché mais fonctionnel */}
-                <audio
-                    ref={audioRef}
-                    controls
-                    controlsList="nodownload"
-                    onError={() => setAudioError("Erreur lors du chargement de l'audio.")}
-                    onCanPlay={() => {
-                        setAudioError(null);
-                        setIsLoaded(true);
-                    }}
-                    onContextMenu={(e) => e.preventDefault()}
-                >
-                    <source src={music.audioUrl} type="audio/mpeg" />
-                    Votre navigateur ne prend pas en charge le lecteur audio.
-                </audio>
 
                 {/* Prix en bas à gauche */}
                 <div className="absolute bottom-2 left-10 bg-gray-700 text-white text-xs px-2 py-1 rounded">
                     {music.price} ETH
                 </div>
             </div>
+
             <button
                 onClick={handlePurchase}
                 className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 cursor-pointer z-10"
