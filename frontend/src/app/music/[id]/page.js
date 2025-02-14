@@ -42,6 +42,19 @@ export default function Page({ params }) {
     }, [musicData]);
 
     useEffect(() => {
+        const checkPurchaseStatus = async () => {
+            if (music) {
+                const { data: purchaseStatus } = await useReadContract({
+                    abi,
+                    address: contractAddress,
+                    functionName: "hasLicense",
+                    args: [music.id, address], // Assurez-vous d'importer `address` depuis `useAccount`
+                    chainId: sepolia.id,
+                });
+                setHasPurchased(purchaseStatus);
+            }
+        };
+        checkPurchaseStatus();
         if (music?.imageUrl && imgRef.current) {
             const colorThief = new ColorThief();
             const img = imgRef.current;
@@ -58,6 +71,27 @@ export default function Page({ params }) {
             };
         }
     }, [music]);
+
+    const handlePurchase = async () => {
+        if (hasPurchased) {
+                alert("Vous avez déjà acheté ce son.");
+                return;
+            }
+            try {
+                await writeContract({
+                    abi,
+                    address: contractAddress,
+                    functionName: "purchaseLicense",
+                    args: [music.id],
+                    value: music.price,
+                    chainId: sepolia.id,
+                });
+                alert("Achat réussi !");
+            } catch (error) {
+                console.error("Erreur lors de l'achat :", error);
+                alert("Erreur lors de l'achat. Veuillez réessayer.");
+            }
+        };
 
     if (!music) return <div>Chargement...</div>;
 
