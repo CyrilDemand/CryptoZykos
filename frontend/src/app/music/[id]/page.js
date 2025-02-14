@@ -1,25 +1,32 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
-import { useReadContract } from "wagmi";
+import React from "react";
+import { useEffect, useState } from "react";
+import { useReadContract,  useWriteContract, useAccount} from "wagmi";
 import { sepolia } from "viem/chains";
 import { abi } from "@/app/abi";
 import contractInfo from "@/app/contractInfo";
 
 export default function Page({ params }) {
+  
+    const { address } = useAccount(); 
     const [music, setMusic] = useState(null);
+    const [hasPurchased, setHasPurchased] = useState(false);
+
+    const contractAddress = contractInfo.contractAddress;
+    const unwrappedParams = React.use(params);
+    const { writeContract } = useWriteContract();
+
     const [isPlaying, setIsPlaying] = useState(false);
     const [audioError, setAudioError] = useState(null);
     const [isLoaded, setIsLoaded] = useState(false);
     const audioRef = useRef(null);
 
-    const contractAddress = contractInfo.contractAddress;
-
     const { data: musicData } = useReadContract({
         abi,
         address: contractAddress,
         functionName: "getMusic",
-        args: [params.id],
+        args: [unwrappedParams.id],
         chainId: sepolia.id,
     });
 
@@ -35,6 +42,42 @@ export default function Page({ params }) {
             });
         }
     }, [musicData]);
+  useEffect(() => {
+        const checkPurchaseStatus = async () => {
+            if (music) {
+                const { data: purchaseStatus } = await useReadContract({
+                    abi,
+                    address: contractAddress,
+                    functionName: "hasLicense",
+                    args: [music.id, address], // Assurez-vous d'importer `address` depuis `useAccount`
+                    chainId: sepolia.id,
+                });
+                setHasPurchased(purchaseStatus);
+            }
+        };
+        checkPurchaseStatus();
+    }, [music]);
+
+    const handlePurchase = async () => {
+        if (hasPurchased) {
+            alert("Vous avez déjà acheté ce son.");
+            return;
+        }
+        try {
+            await writeContract({
+                abi,
+                address: contractAddress,
+                functionName: "purchaseLicense",
+                args: [music.id],
+                value: music.price,
+                chainId: sepolia.id,
+            });
+            alert("Achat réussi !");
+        } catch (error) {
+            console.error("Erreur lors de l'achat :", error);
+            alert("Erreur lors de l'achat. Veuillez réessayer.");
+        }
+    };
 
     const togglePlay = () => {
         if (audioRef.current) {
@@ -91,6 +134,12 @@ export default function Page({ params }) {
                     {music.price} ETH
                 </div>
             </div>
+            <button
+                onClick={handlePurchase}
+                className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 cursor-pointer z-10"
+            >
+                Acheter
+            </button>
         </div>
     );
 }
