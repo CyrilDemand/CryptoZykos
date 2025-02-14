@@ -12,7 +12,7 @@ const Nav = () => {
         <nav className="fixed top-0 left-0 w-full bg-black text-white px-6 py-3 flex justify-between items-center border-b-2 border-purple-500 shadow-md z-50">
             <div className="text-xl font-bold"><Link href={`/`} className="px-4 py-2 rounded-lg hover:bg-gray-600 transition">🎵</Link></div>
             <ul className="flex items-center space-x-4">
-            {address &&  <li><Link href={`/bibliotheque/`} className="px-4 py-2 bg-gray-800 rounded-lg hover:bg-gray-600 transition">Bibliothèque</Link></li>}
+                {address && <li><Link href={`/bibliotheque/`} className="px-4 py-2 bg-gray-800 rounded-lg hover:bg-gray-600 transition">Bibliothèque</Link></li>}
                 {address && <li><Link href={`/upload/`} className="px-4 py-2 bg-gray-800 rounded-lg hover:bg-gray-600 transition">Upload</Link></li>}
                 <li>
                     <ConnectButton.Custom>
