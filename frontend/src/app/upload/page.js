@@ -1,21 +1,31 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { useAccount } from 'wagmi';
+import { useAccount, useWriteContract} from 'wagmi';
 import { useRouter } from 'next/navigation';
+import { sepolia } from "viem/chains";
+import { abi } from '../abi';
+import contractInfo from '../contractInfo.json';
+import {uploadToIPFS} from "@/app/utils/uploadToIPFS";
 import ColorThief from 'colorthief';
+
 
 export default function Upload() {
     const { address } = useAccount(); 
     const router = useRouter();
     const [title, setTitle] = useState('');
     const [music, setMusic] = useState(null);
+    const [musicUrl, setMusicUrl] = useState (null);
     const [coverArt, setCoverArt] = useState(null);
-    const [price, setPrice] = useState('');
+    const [coverArtUrl, setCoverArtUrl] = useState(null);
+    const [price, setPrice] = useState(0);
     const [priceUSD, setPriceUSD] = useState(null); // Correction ici, l'état n'était pas initialisé
     const [coverArtPreview, setCoverArtPreview] = useState(null);
     const [backgroundColor, setBackgroundColor] = useState('rgb(0,0,0)'); // Couleur du fond extraite
     const [gradientBackground, setGradientBackground] = useState('linear-gradient(to right, black, gray)');
+    const [isUploadDone, setIsUploadDone] = useState(false);
+
+    const contractAddress = contractInfo.contractAddress;
 
     const imgRef = useRef(null);
 
@@ -24,7 +34,11 @@ export default function Upload() {
         if (!address) {
             router.push('/');
         }
-    }, [address, router]); // Dépendance sur `address`, ne redirige que si elle est absente
+        if (isUploadDone) {
+            addMusic();
+            setIsUploadDone(false); // Reset pour la prochaine exécution
+        }
+    }, [address, router, isUploadDone]); // Dépendance sur `address`, ne redirige que si elle est absente
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -91,6 +105,41 @@ export default function Upload() {
             };
         }
     }, [coverArtPreview]);
+
+    const handleUpload = async (file) => {
+        if (!file) return;
+        const url = await uploadToIPFS(file);
+        console.log(`dans handle upload, return ${url}`)
+        return url;
+    };
+
+    const { writeContract } = useWriteContract();
+    
+    async function addMusic() {
+        const uploadedCoverArtUrl = await handleUpload(coverArt);
+        const uploadedMusicUrl = await handleUpload(music);
+
+        setCoverArtUrl(uploadedCoverArtUrl);
+        setMusicUrl(uploadedMusicUrl);
+        try {
+            await writeContract({
+                abi,
+                address: contractAddress,
+                functionName: "addMusic",
+                args: [
+                    title,
+                    uploadedCoverArtUrl,
+                    uploadedMusicUrl,
+                    price
+                ],
+                chainId: sepolia.id,
+            });
+
+            console.log("✅ Musique ajoutée !");
+        } catch (error) {
+            console.error("❌ Erreur lors de l'ajout de la musique :", error);
+        }
+    }
 
     return (
         <div className="h-screen w-full flex flex-col justify-center items-center text-white px-6 py-10"
@@ -164,6 +213,7 @@ export default function Upload() {
                     type="submit"
                     className="w-full px-4 py-2 rounded-md transition"
                     style={{ background: backgroundColor, color: "#fff" }}
+                    onClick={addMusic}
                 >
                     Submit
                 </button>
