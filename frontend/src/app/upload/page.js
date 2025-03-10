@@ -142,7 +142,7 @@ export default function Upload() {
     }
 
     return (
-        <div className="h-screen w-full flex flex-col justify-center items-center text-white px-6 py-10"
+        <div className="h-screen w-full flex flex-col justify-center items-center text-white px-6 py-10 bg-gray-700"
         style={{ background: gradientBackground }}>
             <form onSubmit={handleSubmit} className="w-full max-w-md bg-gray-900 p-6 rounded-lg shadow-lg space-y-4">
             {/* Titre page */}
