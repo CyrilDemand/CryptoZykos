@@ -3,6 +3,7 @@
 import { useAccount } from "wagmi";
 import { useEffect, useState } from "react";
 import { useRouter } from 'next/navigation';
+import { ConnectButton } from "@rainbow-me/rainbowkit";
 
 export default function Account({ paralms }) {
     const { address } = useAccount();
@@ -29,9 +30,55 @@ export default function Account({ paralms }) {
 
     return (
         <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 p-6">
-            <h1 className="text-3xl text-purple-600 font-bold mb-6">Mon Compte</h1>
+            <h1 className="text-3xl text-purple-600 font-bold mb-6 drop-shadow-md">Mon Compte</h1>
             <form onSubmit={handleSubmit} className="shadow-md rounded-lg p-8 w-full max-w-md bg-gray-700">
-                <label className="block font-semibold mb-1">
+                
+            <ConnectButton.Custom>
+                        {({
+                            account,
+                            chain,
+                            openAccountModal,
+                            openChainModal,
+                            mounted
+                        }) => {
+                            return (
+                                <div
+                                    {...(!mounted && {
+                                        "aria-hidden": true,
+                                        style: {
+                                            opacity: 0,
+                                            pointerEvents: "none",
+                                            userSelect: "none",
+                                        },
+                                    })}
+                                    className="flex space-x-2 justify-between"
+                                >
+                                    {account && chain ? (
+                                        <>
+                                            <button
+                                                onClick={openChainModal}
+                                                className="px-4 py-2 bg-white text-black rounded-lg shadow-md hover:bg-gray-200 transition-all duration-300 flex items-center"
+                                            >
+                                                🟢 {chain.name}
+                                            </button>
+                                            <button
+                                                onClick={openAccountModal}
+                                                className="px-4 py-2 bg-white text-black rounded-lg shadow-md hover:bg-gray-200 transition-all duration-300 flex items-center space-x-2"
+                                            >
+                                                <span>{account.displayBalance ? account.displayBalance : "0 ETH"}</span>
+                                                <span className="text-red-500">🔴</span>
+                                                <span>{account.displayName}</span>
+                                            </button>
+                                        </>
+                                    ) : null}
+                                </div>
+                            );
+                        }}
+                    </ConnectButton.Custom>
+                
+                
+                
+                <label className="block font-semibold mb-1 mt-6">
                     <span className="text-gray-300">Nom:</span>
                     <input 
                         type="text" 
