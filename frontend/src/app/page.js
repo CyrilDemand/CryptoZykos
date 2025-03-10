@@ -83,9 +83,10 @@ export default function Home() {
             </div>
 
             {/* Section Musiques */}
-            <div className="bg-black text-white min-h-screen p-8">
-                <h2 className="text-2xl font-bold mb-4">Musiques</h2>
-                <div className="grid gap-4">
+            <div className="bg-black text-white min-h-screen px-6 lg:px-12 py-8 flex justify-center">
+                <div className="max-w-4xl w-full">
+                    <h1 className="text-2xl font-bold mb-4">Musiques</h1>
+                    <div className="grid gap-4">
                     {musicList.map((music, index) => (
                         <Link href={`/music/`+ music.id} >
                             <div key={index} className="bg-gray-800 p-4 rounded-lg flex items-center">
@@ -102,6 +103,7 @@ export default function Home() {
 
                         
                     ))}
+                    </div>
                 </div>
             </div>
         </>  

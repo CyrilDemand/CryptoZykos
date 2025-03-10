@@ -16,9 +16,10 @@ export default function Bibliotheque() {
             </div>
 
             {/* Section Musiques */}
-            <div className="bg-black text-white min-h-screen p-8">
-                <h2 className="text-2xl font-bold mb-4">Musiques</h2>
-                <div className="grid gap-4">
+            <div className="bg-black text-white min-h-screen px-6 lg:px-12 py-8 flex justify-center">
+                <div className="max-w-4xl w-full">
+                    <h1 className="text-2xl font-bold mb-4">Musiques</h1>
+                    <div className="grid gap-4">
                     <div className="bg-gray-800 p-4 rounded-lg flex items-center">
                         <div className="w-16 h-16 bg-gray-600 rounded-lg"></div>
                         <div className="ml-4">
@@ -43,9 +44,9 @@ export default function Bibliotheque() {
                         </div>
                         <div className="ml-auto text-sm bg-gray-700 px-3 py-1 rounded">2 ETH</div>
                     </div>
+                    </div>
                 </div>
-            </div>
-            
+            </div>    
         </>
     );
     
