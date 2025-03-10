@@ -29,14 +29,6 @@ export default function Account({ paralms }) {
             router.push('/'); // Redirige vers l'accueil si pas de compte
         } else {
             console.log(fetchedProfile);
-            if (fetchedProfile == undefined){
-                writeContract({
-                    abi: accountStorageABI,
-                    address: contractAddress,
-                    functionName: "createProfile",
-                    args: ["Name","Description","https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"],
-                });
-            }
             
         }
     }, [address, router]);

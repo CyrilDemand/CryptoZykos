@@ -14,7 +14,7 @@ async function main() {
 
     // 🔹 Sauvegarde l’adresse dans un fichier JSON
     fs.writeFileSync(
-        "../contractInfo.json",
+        "./contractInfo.json",
         JSON.stringify({ contractAddress }, null, 2) // Écrit dans le JSON
     );
 
