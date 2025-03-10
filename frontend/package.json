@@ -20,7 +20,8 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "viem": "^2.23.1",
-    "wagmi": "^2.14.11"
+    "wagmi": "^2.14.11",
+    "wavesurfer.js": "^7.9.1"
   },
   "devDependencies": {
     "hardhat": "^2.22.18",

@@ -72,8 +72,29 @@ export default function Page({ params }) {
                 }
             };
         }
-    }, [music]);
+        const audio = audioRef.current;
+    if (!audio) return;
 
+    const handleTimeUpdate = () => {
+        if ( audio.currentTime >= 30) {
+            audio.pause();
+        }
+    };
+
+    audio.addEventListener("timeupdate", handleTimeUpdate);
+
+    return () => {
+        audio.removeEventListener("timeupdate", handleTimeUpdate);
+    };
+    }, [music]);
+    
+    const handlePlay = () => {
+        if (audioRef.current) {
+            audioRef.current.currentTime = 0; // Revenir au début
+            audioRef.current.play();
+        }
+    };
+    
     const handlePurchase = async () => {
         if (hasPurchased) {
                 alert("Vous avez déjà acheté ce son.");
@@ -124,6 +145,7 @@ export default function Page({ params }) {
                     onContextMenu={(e) => e.preventDefault()}  // Désactive le clic droit
                     controlsList="nodownload noremoteplayback nofullscreen" // Supprime les options de Chrome
                     onError={() => setAudioError("Erreur lors du chargement de l'audio.")} 
+                    onPlay={handlePlay}
                 > 
                         <source src={music.audioUrl} type="audio/mpeg" />
                         Votre navigateur ne prend pas en charge le lecteur audio.
