@@ -4,28 +4,61 @@ import { useAccount } from "wagmi";
 import { useEffect, useState } from "react";
 import { useRouter } from 'next/navigation';
 import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { accountStorageABI } from '../accountAbi';
+import { useReadContract, useWriteContract } from "wagmi";
+import contractInfo from '../contractInfo.json';
 
 export default function Account({ paralms }) {
     const { address } = useAccount();
     const router = useRouter();
     const [name, setName] = useState(""); // État pour le nom
     const [description, setDescription] = useState(""); // État pour la description
+    
+    const contractAddress = contractInfo.contractAddress;
+    const { writeContract } = useWriteContract();
+
+    const { data:fetchedProfile } = useReadContract({
+        abi: accountStorageABI,
+        address: contractAddress,
+        functionName: 'getProfile',
+        args: [address], 
+    });
 
     useEffect(() => {
         if (!address) {
             router.push('/'); // Redirige vers l'accueil si pas de compte
         } else {
-            // Appel API pour récupérer le nom et la description actuels
-            // Remplacez par votre logique d'appel API
-            setName("Nom actuel"); // Placeholder pour le nom
-            setDescription("Description actuelle"); // Placeholder pour la description
+            console.log(fetchedProfile);
+            if (fetchedProfile == undefined){
+                writeContract({
+                    abi: accountStorageABI,
+                    address: contractAddress,
+                    functionName: "createProfile",
+                    args: ["Name","Description","https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"],
+                });
+            }
+            
         }
     }, [address, router]);
 
-    const handleSubmit = (event) => {
+    const handleSubmit = async (event) => {
         event.preventDefault();
-        // Logique pour mettre à jour le nom et la description via un appel API
-        // Remplacez par votre logique d'appel API
+        try {
+            await writeContract({
+                abi: accountStorageABI,
+                address: contractAddress,
+                functionName: "setName",
+                args: [name],
+            });
+            await writeContract({
+                abi: accountStorageABI,
+                address: contractAddress,
+                functionName: "setDescription",
+                args: [description],
+            });
+        } catch (error) {
+            console.error("Error updating information:", error);
+        }
     };
 
     return (

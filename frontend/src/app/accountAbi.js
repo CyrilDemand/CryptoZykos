@@ -1,6 +1,6 @@
 // abi.js
 
-const accountStorageABI = [
+export const accountStorageABI = [
     {
         "inputs": [],
         "stateMutability": "nonpayable",
@@ -250,9 +250,3 @@ const accountStorageABI = [
         "type": "function"
     }
 ];
-
-// Exporter l'ABI pour pouvoir l'utiliser dans d'autres fichiers
-export default accountStorageABI;
-
-// Si vous préférez un export CommonJS (pour Node.js), utilisez ceci à la place:
-// module.exports = accountStorageABI;
