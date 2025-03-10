@@ -10,15 +10,24 @@ async function main() {
     const contractAddress = await contract.getAddress();
     console.log(`✅ Contrat déployé à l'adresse: ${contractAddress}`);
 
+
+    const account = await hre.ethers.getContractFactory("AccountStorage");
+    const accountContract = await account.deploy();
+
+    await accountContract.waitForDeployment();
+
+    const accountContractAddress = await accountContract.getAddress();
+    console.log(`✅ Contrat déployé à l'adresse: ${accountContractAddress}`);
+
     // 🔹 Sauvegarde l’adresse dans un fichier JSON
     fs.writeFileSync(
         "./contractInfo.json",
-        JSON.stringify({ contractAddress }, null, 2) // Écrit dans le JSON
+        JSON.stringify({ contractAddress, accountContractAddress }, null, 2) // Écrit dans le JSON
     );
 
     fs.writeFileSync(
         "../frontend/src/app/contractInfo.json",
-        JSON.stringify({ contractAddress }, null, 2) // Écrit dans le JSON
+        JSON.stringify({ contractAddress, accountContractAddress }, null, 2) // Écrit dans le JSON
     );
 
 

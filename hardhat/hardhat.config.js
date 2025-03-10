@@ -3,6 +3,12 @@ require("dotenv").config();
 
 module.exports = {
   solidity: "0.8.20",
+  paths: {
+    artifacts: './artifacts',
+    sources: './contracts',
+    cache: './cache',
+    tests: './test'
+  },
   networks: {
     sepolia: {
       url: process.env.SEPOLIA_RPC_URL, // URL du RPC Sepolia
