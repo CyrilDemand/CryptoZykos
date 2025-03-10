@@ -33,10 +33,12 @@ export default function Page({ params }) {
             setMusic({
                 id: musicData[0],
                 creator: musicData[1],
-                name: musicData[2],
+                name: musicData[2] || "Titre inconnu",
                 imageUrl: musicData[3],
                 audioUrl: musicData[4],
                 price: musicData[5],
+                artist: "Artiste inconnu", // Placeholder en attendant l'ajout dans le contrat
+                description: "", // Placeholder en attendant les données du contrat
             });
         }
     }, [musicData]);
@@ -96,30 +98,29 @@ export default function Page({ params }) {
     if (!music) return <div>Chargement...</div>;
 
     return (
-        <div className="relative w-full h-screen flex flex-col justify-center items-center bg-black">
-            {/* Titre centré en haut */}
-            <h1 className="text-4xl font-bold text-white mb-6">{music.name}</h1>
-
+        <div className="relative w-full h-screen flex flex-col justify-top pt-20 items-center bg-gray-900">
+            
             {/* Card principale */}
-            <div className="relative w-[90%] max-w-3xl border border-gray-500 rounded-lg p-6 flex items-center shadow-lg" style={{ background: gradientBackground }}>
+            <div className="relative w-full min-h-[260px] h-auto hover mt-0 flex items-center shadow-lg"style={{ background: gradientBackground }}>
                 {/* Image et Prix */}
-                <div className="flex flex-col items-center w-32 h-auto flex-shrink-0">
-                    <div className="relative w-32 h-32 bg-gray-300 rounded-md overflow-hidden">
+                <div className="flex flex-col items-center w-max h-auto flex-shrink-0">
+                    <div className="relative w-60 h-60 bg-gray-300 rounded-md overflow-hidden">
                         {music.imageUrl && (
-                            <img ref={imgRef} src={music.imageUrl} alt="Cover" className="w-full h-full object-cover" crossOrigin="anonymous" />
+                            <img ref={imgRef} src={music.imageUrl} alt="Cover" className="w-full h-full object-cover max-h-60 max-w-60" crossOrigin="anonymous" />
                         )}
-                        <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 bg-gray-700 text-white text-xs px-2 py-1 rounded">
-                            {music.price} ETH
-                        </div>
                     </div>
                 </div>
-
+                {/* Titre centré en haut */}
+                <div className=" max-w-3xl flex flex-col items-start ml-3 mb-10">
+                    <h1 className="font-bold text-white text-4xl  px-2 py-1 rounded bg-gray-700 opacity-70 mb-4">{music.name}</h1>
+                    <h2 className="text-xl text-white px-2 py-1 rounded bg-gray-700 opacity-70 mb-6">{music.artist}</h2>
+                </div>
                 {/* Lecteur audio à droite et centré verticalement */}
-                <div className="flex-1 flex items-center justify-start w-full ml-6">
+                <div className="w-full flex-1 flex items-center justify-center mt-20">
                 <audio
                     ref={audioRef}
                     controls
-                    className="w-full"
+                    className="w-full max-w-lg"
                     onContextMenu={(e) => e.preventDefault()}  // Désactive le clic droit
                     controlsList="nodownload noremoteplayback nofullscreen" // Supprime les options de Chrome
                     onError={() => setAudioError("Erreur lors du chargement de l'audio.")} 
@@ -130,15 +131,30 @@ export default function Page({ params }) {
                 </div>
             </div>
 
-            {/* Bouton Acheter (centré en dessous de la carte) */}
+            
+
+            {/* Section Description */}
+            <div className="mt-6 text-center px-4 py-2 text-gray-300 max-w-2xl">
+                <h3 className="text-xl font-semibold mb-2">Description</h3>
+                <p>{music.description || "Aucune description disponible pour le moment."}</p>
+            </div>
+
+            {/* Bouton Acheter*/}
+            <div className="w-[90%] max-w-3xl flex flex-col items-start mb-6">
             {!hasPurchased && (
-                <button
-                    onClick={() => writeContract({ abi, address: contractAddress, functionName: "purchaseLicense", args: [music.id], value: music.price, chainId: sepolia.id })}
-                    className="mt-4 px-6 py-3 bg-gray-700 text-white text-lg rounded hover:bg-gray-600 cursor-pointer"
-                >
-                    Acheter
-                </button>
+                <div className="flex justify-start items-center w-full">
+                    <button
+                        onClick={() => writeContract({ abi, address: contractAddress, functionName: "purchaseLicense", args: [music.id], value: music.price, chainId: sepolia.id })}
+                        className="mt-4 px-6 py-3 bg-gray-700 text-white text-lg rounded hover:bg-gray-600 cursor-pointer"
+                    >
+                        Acheter
+                    </button>
+                    <div className="text-white text-sm ml-4">
+                        {music.price} ETH
+                    </div>
+                </div>
             )}
+            </div>
         </div>
     );
 }
