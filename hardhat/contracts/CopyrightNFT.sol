@@ -41,7 +41,7 @@ contract CopyrightNFT {
         Music storage music = musicList[musicId - 1];
 
         require(msg.value == music.price, "Montant incorrect.");
-        require(!music.hasPurchased[msg.sender], "Deja achete.");
+        require(!music.hasPurchased[msg.sender], "Deja achete."); //TODO : ne fonctionne pas
 
         music.hasPurchased[msg.sender] = true;
         payable(music.creator).transfer(msg.value);

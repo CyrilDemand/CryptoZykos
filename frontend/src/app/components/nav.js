@@ -19,8 +19,6 @@ const Nav = () => {
                         {({
                             account,
                             chain,
-                            openAccountModal,
-                            openChainModal,
                             openConnectModal,
                             mounted
                         }) => {
@@ -36,24 +34,7 @@ const Nav = () => {
                                     })}
                                     className="flex space-x-2"
                                 >
-                                    {account && chain ? (
-                                        <>
-                                            <button
-                                                onClick={openChainModal}
-                                                className="px-4 py-2 bg-white text-black rounded-lg shadow-md hover:bg-gray-200 transition-all duration-300 flex items-center"
-                                            >
-                                                🟢 {chain.name}
-                                            </button>
-                                            <button
-                                                onClick={openAccountModal}
-                                                className="px-4 py-2 bg-white text-black rounded-lg shadow-md hover:bg-gray-200 transition-all duration-300 flex items-center space-x-2"
-                                            >
-                                                <span>{account.displayBalance ? account.displayBalance : "0 ETH"}</span>
-                                                <span className="text-red-500">🔴</span>
-                                                <span>{account.displayName}</span>
-                                            </button>
-                                        </>
-                                    ) : (
+                                    {account && chain ? (null) : (
                                         <button
                                             onClick={openConnectModal}
                                             className="px-4 py-2 bg-gray-800 text-white rounded-lg shadow-md hover:bg-gray-600 transition-all duration-300"
@@ -66,6 +47,7 @@ const Nav = () => {
                         }}
                     </ConnectButton.Custom>
                 </li>
+                {address && <li><Link href={`/account/`} className="px-4 py-2 bg-gray-800 rounded-lg hover:bg-gray-600 transition">Profile</Link></li>}
             </ul>
         </nav>
     );
