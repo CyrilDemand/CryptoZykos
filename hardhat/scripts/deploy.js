@@ -1,32 +1,19 @@
-const fs = require("fs");
+// scripts/deploy.js
 const hre = require("hardhat");
 
 async function main() {
+    // Récupérer le ContractFactory
     const CopyrightNFT = await hre.ethers.getContractFactory("CopyrightNFT");
-    const contract = await CopyrightNFT.deploy();
 
-    await contract.waitForDeployment();
+    // Déployer le contrat avec l'URI de base
+    console.log("Déploiement du CopyrightNFT...");
+    const baseURI = "https://example.com/api/item/{id}.json";
+    const copyrightNFT = await CopyrightNFT.deploy(baseURI);
 
-    const contractAddress = await contract.getAddress();
-    console.log(`✅ Contrat déployé à l'adresse: ${contractAddress}`);
+    // Attendre que le déploiement soit terminé
+    await copyrightNFT.waitForDeployment();
 
-
-
-    // 🔹 Sauvegarde l’adresse dans un fichier JSON
-    fs.writeFileSync(
-        "./contractInfo.json",
-        JSON.stringify({ contractAddress }, null, 2) // Écrit dans le JSON
-    );
-
-    fs.writeFileSync(
-        "../frontend/src/app/contractInfo.json",
-        JSON.stringify({ contractAddress }, null, 2) // Écrit dans le JSON
-    );
-
-    console.log(contractAddress);
-
-    console.log("✅ Adresse du contrat mise à jour dans contractInfo.json");
-    console.log("CHANGEZ AUSSI DANS L AUTRE JSON DU FRONT END")
+    console.log(`CopyrightNFT déployé à l'adresse: ${await copyrightNFT.getAddress()}`);
 }
 
 main()

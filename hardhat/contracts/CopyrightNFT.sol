@@ -1,120 +1,80 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-contract CopyrightNFT {
-    struct Music {
-        uint256 id;
-        address creator;
-        string name;
-        string imageURL;
-        string audioURL;
-        uint256 price; // Stocké en wei
-        mapping(address => bool) hasPurchased;
+// Importation de l'implémentation standard ERC-1155 et Ownable d'OpenZeppelin
+import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+
+/**
+ * @title MusicCopyright
+ * @dev Contrat pour gérer des droits d'auteur de musique utilisant la norme ERC-1155.
+ * Chaque token (par identifiant) représente une oeuvre musicale.
+ */
+contract CopyrightNFT is ERC1155, Ownable {
+
+    // Mapping pour associer un token ID à l'adresse du créateur (détenteur des droits)
+    mapping(uint256 => address) public creator;
+
+    // Mapping optionnel pour stocker des métadonnées spécifiques à l'oeuvre, par exemple son nom
+    mapping(uint256 => string) public musicTitles;
+
+    /**
+     * @dev Le constructeur initialise l'URI de base pour les métadonnées JSON
+     * et définie le propriétaire via Ownable.
+     * Exemple d'URI : "https://monserveur.com/api/token/{id}.json"
+     */
+    constructor(string memory baseUri) ERC1155(baseUri) Ownable(msg.sender) {}
+
+    /**
+     * @notice Crée une nouvelle oeuvre musicale (token ERC-1155) avec une quantité initiale.
+     * @param tokenId L'identifiant unique représentant l'oeuvre
+     * @param supply La quantité initiale de tokens émis (par exemple pour gérer différents droits ou licences)
+     * @param _title Le nom ou titre de l'oeuvre
+     * @param data Informations additionnelles (optionnelles) pour le mint
+     *
+     * Seul le propriétaire du contrat (par héritage de Ownable) peut créer une nouvelle oeuvre.
+     */
+    function createMusic(
+        uint256 tokenId,
+        uint256 supply,
+        string memory _title,
+        bytes memory data
+    ) external onlyOwner {
+        // Vérifie que cet identifiant n'a pas encore été utilisé
+        require(creator[tokenId] == address(0), "Les droits sur cette oeuvre existent deja");
+
+        // Enregistre le créateur de l'oeuvre (ici l'admin, mais on peut adapter pour un mécanisme plus complexe)
+        creator[tokenId] = msg.sender;
+        musicTitles[tokenId] = _title;
+
+        // Mint initial des tokens représentant les droits d'auteur pour cette oeuvre
+        _mint(msg.sender, tokenId, supply, data);
     }
 
-    Music[] public musicList;
-    uint256 public nextMusicId = 1;
-
-    event MusicAdded(uint256 indexed musicId, address creator, string name, string imageURL, string audioURL, uint256 price);
-    event Purchased(address indexed buyer, uint256 musicId, uint256 amount);
-    event MetadataUpdated(uint256 indexed musicId, string name, string imageURL, string audioURL, uint256 price);
-
-    function addMusic(
-        string memory _name,
-        string memory _imageURL,
-        string memory _audioURL,
-        uint256 _price
+    /**
+     * @notice Permet au créateur d'une oeuvre (désigné lors de la création) d'émettre des copies additionnelles.
+     * @param account Adresse qui recevra les nouveaux tokens
+     * @param tokenId L'identifiant de l'oeuvre pour lequel émettre des copies
+     * @param additionalSupply Quantité additionnelle à ajouter
+     * @param data Informations additionnelles (optionnelles)
+     */
+    function mintAdditionalCopies(
+        address account,
+        uint256 tokenId,
+        uint256 additionalSupply,
+        bytes memory data
     ) external {
-        Music storage newMusic = musicList.push();
-        newMusic.id = nextMusicId++;
-        newMusic.creator = msg.sender;
-        newMusic.name = _name;
-        newMusic.imageURL = _imageURL;
-        newMusic.audioURL = _audioURL;
-        newMusic.price = _price;
+        // Seul le créateur de l'oeuvre peut mint des copies additionnelles
+        require(creator[tokenId] == msg.sender, "Vous n'etes pas le createur de cette oeuvre");
 
-        emit MusicAdded(newMusic.id, msg.sender, _name, _imageURL, _audioURL, _price);
+        _mint(account, tokenId, additionalSupply, data);
     }
 
-    function purchaseLicense(uint256 musicId) external payable {
-        require(musicId > 0 && musicId <= musicList.length, "Musique inexistante.");
-        Music storage music = musicList[musicId - 1];
-
-        require(msg.value == music.price, "Montant incorrect.");
-        require(!music.hasPurchased[msg.sender], "Deja achete."); //TODO : ne fonctionne pas
-
-        music.hasPurchased[msg.sender] = true;
-        payable(music.creator).transfer(msg.value);
-
-        emit Purchased(msg.sender, musicId, msg.value);
-    }
-
-    function updateMetadata(
-        uint256 musicId,
-        string memory _name,
-        string memory _imageURL,
-        string memory _audioURL,
-        uint256 _price
-    ) external {
-        require(musicId > 0 && musicId <= musicList.length, "Musique inexistante.");
-        Music storage music = musicList[musicId - 1];
-
-        require(msg.sender == music.creator, "Seul le createur peut modifier ceci.");
-
-        music.name = _name;
-        music.imageURL = _imageURL;
-        music.audioURL = _audioURL;
-        music.price = _price;
-
-        emit MetadataUpdated(musicId, _name, _imageURL, _audioURL, _price);
-    }
-
-    function hasLicense(uint256 musicId, address user) external view returns (bool) {
-        require(musicId > 0 && musicId <= musicList.length, "Musique inexistante.");
-        return musicList[musicId - 1].hasPurchased[user];
-    }
-
-    function getMusicCount() external view returns (uint256) {
-        return musicList.length;
-    }
-
-    function getMusic(uint256 musicId) external view returns (
-        uint256 id,
-        address creator,
-        string memory name,
-        string memory imageURL,
-        string memory audioURL,
-        uint256 price
-    ) {
-        require(musicId > 0 && musicId <= musicList.length, "Musique inexistante.");
-        Music storage music = musicList[musicId - 1];
-        return (music.id, music.creator, music.name, music.imageURL, music.audioURL, music.price);
-    }
-
-    function getAllMusic() external view returns (
-        uint256[] memory ids,
-        address[] memory creators,
-        string[] memory names,
-        string[] memory imageURLs,
-        string[] memory audioURLs,
-        uint256[] memory prices
-    ) {
-        uint256 length = musicList.length;
-        ids = new uint256[](length);
-        creators = new address[](length);
-        names = new string[](length);
-        imageURLs = new string[](length);
-        audioURLs = new string[](length);
-        prices = new uint256[](length);
-
-        for (uint256 i = 0; i < length; i++) {
-            Music storage music = musicList[i];
-            ids[i] = music.id;
-            creators[i] = music.creator;
-            names[i] = music.name;
-            imageURLs[i] = music.imageURL;
-            audioURLs[i] = music.audioURL;
-            prices[i] = music.price;
-        }
+    /**
+     * @notice (Optionnel) Fonction pour mettre à jour l'URI de base si nécessaire.
+     * Seul le propriétaire peut mettre à jour l'URI.
+     */
+    function setBaseURI(string memory newuri) external onlyOwner {
+        _setURI(newuri);
     }
 }
