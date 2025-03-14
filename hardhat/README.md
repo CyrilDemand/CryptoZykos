@@ -1,15 +1,24 @@
-# Sample Hardhat Project
+# Partie hardhat - contrats blockchain
 
-This project demonstrates a basic Hardhat use case. It comes with a sample contract, a test for that contract, and a Hardhat Ignition module that deploys that contract.
+Ce dossier contient les contracts ainsi que ce qu'il faut pour les déployer
+- contracts : contient les contrats solidity
+- scripts : scripts de deploiement sur le testnet etherum solidity
+- test : les tests unitaires des contrats
 
-Try running some of the following tasks:
-
+## Pour deployer sur la blockchain locale
 ```shell
-npx hardhat help
-npx hardhat test
-REPORT_GAS=true npx hardhat test
 npx hardhat node
-npx hardhat ignition deploy ./ignition/modules/Lock.js
+npx hardhat run .\scripts\deploy.js --network localhost 
 ```
 
-npx hardhat run scripts/deploy.js --network sepolia
+## Pour deployer sur la blockchain sepolia
+
+## Lancer les tests unitaires :
+```shell
+npx hardhat test
+```
+
+## Pour deployer sur la blockchain locale
+```shell
+npx hardhat run .\scripts\deploy.js --network sepolia 
+```
