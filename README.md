@@ -7,6 +7,9 @@ Cyril DEMAND, Noé DELCROIX, Alexis BOURDARIAS, *Thomas NIGAULT*
 CryptoZykos est une marketplace innovante permettant aux artistes, labels, collectionneurs et investisseurs d’acheter, vendre et échanger des droits musicaux. 
 Grâce à la technologie blockchain et aux smart contracts, la plateforme assure une gestion transparente, sécurisée et décentralisée des transactions musicales.
 
+## Lien vers la présentation 
+[https://www.canva.com/design/DAGhhb2N7z0/LY5rVbAr4JNU9KPhEhnARQ/edit](https://www.canva.com/design/DAGhhb2N7z0/LY5rVbAr4JNU9KPhEhnARQ/edit?utm_content=DAGhhb2N7z0&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton)
+
 ## Fonctionnalités
 - Connexion via portefeuille crypto
 - Royalties automatiques
