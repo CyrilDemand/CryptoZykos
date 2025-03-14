@@ -63,6 +63,8 @@ Grâce à la technologie blockchain et aux smart contracts, la plateforme assure
 
 Ce projet a le potentiel de révolutionner l’industrie musicale en permettant une monétisation plus équitable pour les artistes, tout en offrant aux collectionneurs et investisseurs de nouvelles opportunités d’acquisition et de revente de droits musicaux via la blockchain.
 
-## Installation et démmarrage
+## Installation et démarrage
+
+Voir les readme dans les dossiers fronts et hardhat pour les instructions spécifiques
 
 
